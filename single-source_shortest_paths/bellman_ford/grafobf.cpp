@@ -46,7 +46,7 @@ int main(int argc, char *argv[]) {
         }
         printf("\nÁrvore de caminhos mínimos\n");
         for(uint i=0; i<pi.size(); i++) {
-            if(i == START) continue;
+            if(pi[i] == -1) continue;
             printf("%d->%d\n", pi[i], i);
         }
     }
