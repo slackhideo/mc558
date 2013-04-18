@@ -17,16 +17,17 @@ vector<int> pi;
 
 void dijkstra(int s);
 void initialiseSingleSource(int s);
-void relax(int u, int v, int w);
-void buildMinHeap(vector<int> *A, vector<int> *B);
-void minHeapify(vector<int> *A, vector<int> *B, int i);
+bool relax(int u, int v, int w);
+void buildMinHeap(vector<int> *A, vector<int> *B, vector<int> *C);
+void minHeapify(vector<int> *A, vector<int> *B, vector<int> *C, int i);
 int parent(int i);
 int left(int i);
 int right(int i);
 void troca(int *a, int *b);
 int heapMinimum(vector<int> B);
-int heapExtractMin(vector<int> *A, vector<int> *B);
-void heapDecreaseKey(vector<int> *A, vector<int> *B, int i, int chave);
+int heapExtractMin(vector<int> *A, vector<int> *B, vector<int> *C);
+void heapDecreaseKey(vector<int> *A, vector<int> *B, vector<int> *C,
+        int i, int chave);
 void mostraResultado(void);
 
 int main(int argc, char *argv[]) {
@@ -56,22 +57,24 @@ int main(int argc, char *argv[]) {
 }
 
 void dijkstra(int s) {
-    vector<int> A(adj.size()+1), B(adj.size()+1);
+    vector<int> A(adj.size()+1), B(adj.size()+1), C(adj.size());
     int u;
 
     initialiseSingleSource(s);
     for(uint v=0; v<adj.size(); v++) {
         A[v+1] = d[v];
         B[v+1] = v;
+        C[v] = v+1;
     }
 
-    buildMinHeap(&A, &B);
+    buildMinHeap(&A, &B, &C);
 
     while(A.size() > 0) {
-        u = heapExtractMin(&A, &B);
+        u = heapExtractMin(&A, &B, &C);
         for(int i=0; i<adjnum[u]; i++) {
-            relax(u, adj[u][i], pesos[u][i]);
-            heapDecreaseKey(&A, &B, adj[u][i], d[adj[u][i]]);
+            if(relax(u, adj[u][i], pesos[u][i]) == true) {
+                heapDecreaseKey(&A, &B, &C, C[adj[u][i]], d[adj[u][i]]);
+            }
         }
     }
 }
@@ -84,22 +87,25 @@ void initialiseSingleSource(int s) {
     d[s] = 0;
 }
 
-void relax(int u, int v, int w) {
-    if(d[u] == INT_MAX) return;
+bool relax(int u, int v, int w) {
+    if(d[u] == INT_MAX) return false;
 
     if(d[v] > d[u] + w) {
         d[v] = d[u] + w;
         pi[v] = u;
+        return true;
     }
+
+    return false;
 }
 
-void buildMinHeap(vector<int> *A, vector<int> *B) {
+void buildMinHeap(vector<int> *A, vector<int> *B, vector<int> *C) {
     for(uint i=((*A).size()-1)/2; i>0; i--) {
-        minHeapify(A, B, i);
+        minHeapify(A, B, C, i);
     }
 }
 
-void minHeapify(vector<int> *A, vector<int> *B, int i) {
+void minHeapify(vector<int> *A, vector<int> *B, vector<int> *C, int i) {
     uint l=left(i), r=right(i);
     int menor;
 
@@ -117,7 +123,8 @@ void minHeapify(vector<int> *A, vector<int> *B, int i) {
     if(menor != i) {
         troca(&(*A)[i], &(*A)[menor]);
         troca(&(*B)[i], &(*B)[menor]);
-        minHeapify(A, B, menor);
+        troca(&(*C)[(*B)[i]], &(*C)[(*B)[menor]]);
+        minHeapify(A, B, C, menor);
     }
 }
 
@@ -135,7 +142,7 @@ int right(int i) {
 
 void troca(int *a, int *b) {
 //
-printf("%d %d\n", *a, *b);
+printf("---\nTroca: %d %d\n---\n", *a, *b);
 //
     int tmp=*a;
     *a = *b;
@@ -146,7 +153,7 @@ int heapMinimum(vector<int> B) {
     return B[1];
 }
 
-int heapExtractMin(vector<int> *A, vector<int> *B) {
+int heapExtractMin(vector<int> *A, vector<int> *B, vector<int> *C) {
     int min;
 
     if((*A).size() < 2) {
@@ -155,18 +162,21 @@ int heapExtractMin(vector<int> *A, vector<int> *B) {
     }
 
     min = (*B)[1];
+    (*C)[min] = -1;
     (*A)[1] = (*A)[(*A).size()-1];
     (*B)[1] = (*B)[(*A).size()-1];
+    (*C)[(*B)[1]] = 1;
 
     (*A).resize((*A).size()-1);
     (*B).resize((*B).size()-1);
 
-    minHeapify(A, B, 1);
+    minHeapify(A, B, C, 1);
 
     return min;
 }
 
-void heapDecreaseKey(vector<int> *A, vector<int> *B, int i, int chave) {
+void heapDecreaseKey(vector<int> *A, vector<int> *B, vector<int> *C,
+        int i, int chave) {
     if(chave > (*A)[i]) {
         perror("Erro! Nova chave é maior que a atual\n");
         exit(1);
@@ -177,6 +187,7 @@ void heapDecreaseKey(vector<int> *A, vector<int> *B, int i, int chave) {
     while(i>1 && (*A)[parent(i)] > (*A)[i]) {
         troca(&(*A)[i], &(*A)[parent(i)]);
         troca(&(*B)[i], &(*B)[parent(i)]);
+        troca(&(*C)[(*B)[i]], &(*C)[(*B)[parent(i)]]);
         i = parent(i);
     }
 }
