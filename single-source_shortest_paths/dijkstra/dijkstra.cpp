@@ -69,7 +69,7 @@ void dijkstra(int s) {
 
     buildMinHeap(&A, &B, &C);
 
-    while(A.size() > 0) {
+    while(A.size() > 1) {
         u = heapExtractMin(&A, &B, &C);
         for(int i=0; i<adjnum[u]; i++) {
             if(relax(u, adj[u][i], pesos[u][i]) == true) {
@@ -141,9 +141,6 @@ int right(int i) {
 }
 
 void troca(int *a, int *b) {
-//
-printf("---\nTroca: %d %d\n---\n", *a, *b);
-//
     int tmp=*a;
     *a = *b;
     *b = tmp;
@@ -157,15 +154,15 @@ int heapExtractMin(vector<int> *A, vector<int> *B, vector<int> *C) {
     int min;
 
     if((*A).size() < 2) {
-        perror("Erro! Underflow do heap\n");
+        printf("Erro! Underflow do heap\n");
         exit(1);
     }
 
     min = (*B)[1];
-    (*C)[min] = -1;
     (*A)[1] = (*A)[(*A).size()-1];
     (*B)[1] = (*B)[(*A).size()-1];
     (*C)[(*B)[1]] = 1;
+    (*C)[min] = -1;
 
     (*A).resize((*A).size()-1);
     (*B).resize((*B).size()-1);
@@ -178,7 +175,7 @@ int heapExtractMin(vector<int> *A, vector<int> *B, vector<int> *C) {
 void heapDecreaseKey(vector<int> *A, vector<int> *B, vector<int> *C,
         int i, int chave) {
     if(chave > (*A)[i]) {
-        perror("Erro! Nova chave é maior que a atual\n");
+        printf("Erro! Nova chave é maior que a atual\n");
         exit(1);
     }
 
