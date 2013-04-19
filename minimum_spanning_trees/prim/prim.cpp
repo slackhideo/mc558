@@ -13,12 +13,10 @@ vector< vector<int> > adj;
 vector< vector<int> > pesos;
 vector<int> adjnum;
 
-vector<int> d;
+vector<int> key;
 vector<int> pi;
 
-void dijkstra(int s);
-void initialiseSingleSource(int s);
-bool relax(int u, int v, int w);
+void prim(int r);
 void buildMinHeap(vector<int> *A, vector<int> *B, vector<int> *C);
 void minHeapify(vector<int> *A, vector<int> *B, vector<int> *C, int i);
 int parent(int i);
@@ -41,7 +39,7 @@ int main(int argc, char *argv[]) {
     pesos.resize(n, vector<int>(n, 0));
     adjnum.resize(n, 0);
 
-    d.resize(n, -1);
+    key.resize(n, INT_MAX);
     pi.resize(n, -1);
 
     for(int i=0; i<m; i++) {
@@ -49,22 +47,27 @@ int main(int argc, char *argv[]) {
         adj[de][adjnum[de]] = para;
         pesos[de][adjnum[de]] = peso;
         adjnum[de]++;
+
+        adj[para][adjnum[para]] = de;
+        pesos[para][adjnum[para]] = peso;
+        adjnum[para]++;
     }
 
-    dijkstra(START);
+    prim(START);
 
     mostraResultado();
 
     return EXIT_SUCCESS;
 }
 
-void dijkstra(int s) {
+void prim(int r) {
     vector<int> A(adj.size()+1), B(adj.size()+1), C(adj.size());
-    int u;
+    int u, v;
 
-    initialiseSingleSource(s);
+    key[r] = 0;
+
     for(uint v=0; v<adj.size(); v++) {
-        A[v+1] = d[v];
+        A[v+1] = key[v];
         B[v+1] = v;
         C[v] = v+1;
     }
@@ -74,31 +77,14 @@ void dijkstra(int s) {
     while(A.size() > 1) {
         u = heapExtractMin(&A, &B, &C);
         for(int i=0; i<adjnum[u]; i++) {
-            if(relax(u, adj[u][i], pesos[u][i]) == true) {
-                heapDecreaseKey(&A, &B, &C, C[adj[u][i]], d[adj[u][i]]);
+            v = adj[u][i];
+            if(C[v] != -1 && pesos[u][i] < key[v]) {
+                pi[v] = u;
+                key[v] = pesos[u][i];
+                heapDecreaseKey(&A, &B, &C, C[v], key[v]);
             }
         }
     }
-}
-
-void initialiseSingleSource(int s) {
-    for(uint v=0; v<adj.size(); v++) {
-        d[v] = INT_MAX;
-        pi[v] = -1;
-    }
-    d[s] = 0;
-}
-
-bool relax(int u, int v, int w) {
-    if(d[u] == INT_MAX) return false;
-
-    if(d[v] > d[u] + w) {
-        d[v] = d[u] + w;
-        pi[v] = u;
-        return true;
-    }
-
-    return false;
 }
 
 void buildMinHeap(vector<int> *A, vector<int> *B, vector<int> *C) {
@@ -192,11 +178,14 @@ void heapDecreaseKey(vector<int> *A, vector<int> *B, vector<int> *C,
 }
 
 void mostraResultado(void) {
-    printf("Distâncias mínimas do vértice origem (%d)\n", START);
-    for(uint i=0; i<d.size(); i++) {
-        printf("d[%d]: %d\n", i, d[i]);
+    int soma = 0;
+
+    for(uint i=0; i<key.size(); i++) {
+        soma += key[i];
     }
-    printf("\nÁrvore de caminhos mínimos\n");
+
+    printf("Prim a partir do vértice %d\n", START);
+    printf("Peso do grafo: %d\n", soma);
     for(uint i=0; i<pi.size(); i++) {
         if(pi[i] == -1) continue;
         printf("%d->%d\n", pi[i], i);
