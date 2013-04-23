@@ -188,6 +188,6 @@ void mostraResultado(void) {
     printf("Peso do grafo: %d\n", soma);
     for(uint i=0; i<pi.size(); i++) {
         if(pi[i] == -1) continue;
-        printf("%d->%d\n", pi[i], i);
+        printf("%d<->%d\n", pi[i], i);
     }
 }

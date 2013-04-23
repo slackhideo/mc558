@@ -11,7 +11,6 @@ enum cores {BRANCO, CINZA, PRETO};
 
 int adj[TAM][TAM];
 int pesos[TAM][TAM];
-int arst[TAM][TAM];
 int adjnum[TAM];
 int pi[TAM];
 int rank[TAM];
@@ -35,11 +34,8 @@ int main(int argc, char *argv[]) {
     for(int i=0; i<m; i++) {
         scanf("%d %d %d", &de, &para, &peso);
         adj[de][adjnum[de]] = para;
-        adj[para][adjnum[para]] = de;
-        arst[de][adjnum[de]] = 1;
-        arst[para][adjnum[para]] = 0;
-        pesos[de][adjnum[de]++] = peso;
-        pesos[para][adjnum[para]++] = peso;
+        pesos[de][adjnum[de]] = peso;
+        adjnum[de]++;
     }
 
     mstKruskal(n, m);
@@ -83,12 +79,10 @@ void mstKruskal(int n, int m) {
     for(int i=0; i<n; i++) {
         makeset(i);
         for(int j=0; j<adjnum[i]; j++) {
-            if(arst[i][j] == 1) {
-                arestas[k][0] = i;
-                arestas[k][1] = adj[i][j];
-                arestas[k][2] = pesos[i][j];
-                k++;
-            }
+            arestas[k][0] = i;
+            arestas[k][1] = adj[i][j];
+            arestas[k][2] = pesos[i][j];
+            k++;
         }
     }
 
@@ -109,7 +103,7 @@ void mstKruskal(int n, int m) {
     printf("Peso do grafo: %d\n", peso);
 
     for(int i=0; i<l; i++) {
-        printf("%d %d\n", A[i][0], A[i][1]);
+        printf("%d<->%d\n", A[i][0], A[i][1]);
     }
 }
 
@@ -134,14 +128,6 @@ void mostrarMatrizes(int n) {
     for(int i=0; i<n; i++) {
         for(int j=0; j<adjnum[i]; j++) {
             printf("%d ", pesos[i][j]);
-        }
-        printf("\n");
-    }
-    printf("\n");
-
-    for(int i=0; i<n; i++) {
-        for(int j=0; j<adjnum[i]; j++) {
-            printf("%d ", arst[i][j]);
         }
         printf("\n");
     }

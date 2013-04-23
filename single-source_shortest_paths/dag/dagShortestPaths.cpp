@@ -6,7 +6,7 @@
 
 using namespace std;
 
-#define START 0
+#define START 1
 
 typedef unsigned int uint;
 enum cores {BRANCO, CINZA, PRETO};
@@ -51,7 +51,12 @@ int main(int argc, char *argv[]) {
 
     printf("Distâncias mínimas do vértice origem (%d)\n", START);
     for(uint i=0; i<dt.size(); i++) {
-        printf("d[%d]: %d\n", i, dt[i]);
+        if(dt[i] == INT_MAX) {
+            printf("d[%d]: INFINITO\n", i);
+        }
+        else {
+            printf("d[%d]: %d\n", i, dt[i]);
+        }
     }
     printf("\nÁrvore de caminhos mínimos\n");
     for(uint i=0; i<pi.size(); i++) {
