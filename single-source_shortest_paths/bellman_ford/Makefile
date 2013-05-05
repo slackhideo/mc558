@@ -1,5 +1,5 @@
 # programa
-PROG=grafobf
+PROG=BellmanFord
 
 # compilador
 CC=g++
